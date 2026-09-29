@@ -1,22 +1,23 @@
+
 pipeline {
     agent any
 
     stages {
-
         stage('Install Dependencies') {
             steps {
                 bat '''
-                    echo Checking Python...
-                    "C:\\Users\\shaheem\\AppData\\Local\\Programs\\Python\\Python314\\python.exe" --version
+                    @echo off
+                    python --version
+                    if errorlevel 1 exit /b 1
 
-                    echo Creating virtual environment...
-                    "C:\\Users\\shaheem\\AppData\\Local\\Programs\\Python\\Python314\\python.exe" -m venv venv
+                    python -m venv venv
+                    if errorlevel 1 exit /b 1
 
-                    echo Upgrading pip...
                     venv\\Scripts\\python.exe -m pip install --upgrade pip
+                    if errorlevel 1 exit /b 1
 
-                    echo Installing requirements...
                     venv\\Scripts\\python.exe -m pip install -r requirements.txt
+                    if errorlevel 1 exit /b 1
                 '''
             }
         }
@@ -24,7 +25,6 @@ pipeline {
         stage('Test') {
             steps {
                 bat '''
-                    echo Running tests...
                     venv\\Scripts\\python.exe -m pytest
                 '''
             }
@@ -33,8 +33,7 @@ pipeline {
         stage('Build') {
             steps {
                 bat '''
-                    echo Build stage started...
-                    echo Flask application build completed successfully.
+                    venv\\Scripts\\python.exe -m compileall .
                 '''
             }
         }
@@ -42,7 +41,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Flask CI/CD pipeline successful!'
         }
 
         failure {
